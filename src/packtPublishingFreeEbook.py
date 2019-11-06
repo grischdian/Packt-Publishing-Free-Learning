@@ -36,13 +36,14 @@ AVAILABLE_DOWNLOAD_FORMATS = ('pdf', 'mobi', 'epub', 'video', 'code')
 @click.option('-m', '--mail', is_flag=True, help='Grab Free Learning Packt ebook and send it by an email.')
 @click.option('-sm', '--status_mail', is_flag=True, help='Send an email whether script execution was successful.')
 @click.option('-f', '--folder', is_flag=True, default=False, help='Download ebooks into separate directories.')
+@click.option('-oc', '--oc', is_flag=True, default=False, help='Upload ebook to ownCloud or nextcloud')
 @click.option(
     '--noauth_local_webserver',
     is_flag=True,
     default=False,
     help='See Google Drive API Setup section in README.'
 )
-def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth_local_webserver):
+def packt_cli(cfgpath, grab, grabd, dall, sgd, oc, mail, status_mail, folder, noauth_local_webserver):
     config_file_path = cfgpath
     into_folder = folder
 
@@ -52,7 +53,7 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth
         api_client = PacktAPIClient(*cfg.packt_login_credentials)
 
         # Grab the newest book
-        if grab or grabd or sgd or mail:
+        if grab or grabd or sgd or mail or oc:
             product_data = claim_product(api_client, cfg.anticaptcha_api_key)
 
             # Send email about successful book grab. Do it only when book
@@ -69,7 +70,7 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth
                 )
 
         # Download book(s) into proper location.
-        if grabd or dall or sgd or mail:
+        if grabd or dall or sgd or mail or oc:
             download_directory, formats = cfg.config_download_data
             download_directory = download_directory if (dall or grabd) else os.getcwd()  # cwd for temporary downloads
             formats = formats or AVAILABLE_DOWNLOAD_FORMATS
@@ -84,11 +85,11 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth
                 )
             elif grabd:
                 download_products(api_client, download_directory, formats, [product_data], into_folder=into_folder)
-            else:  # sgd or mail
+            else:  # sgd or mail or oc
                 download_products(api_client, download_directory, formats, [product_data], into_folder=False)
 
         # Send downloaded book(s) by mail or to Google Drive.
-        if sgd or mail:
+        if sgd or mail or oc:
             paths = [
                 os.path.join(download_directory, path)
                 for path in os.listdir(download_directory)
@@ -98,6 +99,10 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, mail, status_mail, folder, noauth
                 from utils.google_drive import GoogleDriveManager
                 google_drive = GoogleDriveManager(config_file_path)
                 google_drive.send_files(paths)
+            elif oc:
+                from utils.occloud import OwncloudManager
+                oc = OwncloudManager(config_file_path)
+                oc.send_files(paths)
             else:
                 from utils.mail import MailBook
                 mb = MailBook(config_file_path)

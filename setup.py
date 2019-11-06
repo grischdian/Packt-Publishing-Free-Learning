@@ -10,7 +10,8 @@ requirements = [
     'click==7.0',
     'google-api-python-client==1.6.3',
     'requests==2.20.0',
-    'python-slugify==1.2.6'
+    'python-slugify==1.2.6',
+    'pyocclient==0.4'
 ]
 
 dev_requirements = [
@@ -25,14 +26,14 @@ setup(
     version=package_version,
     license='MIT',
     description='Script for grabbing daily Packt Free Learning ebooks',
-    author='Łukasz Uszko',
+    author='ukasz Uszko',
     author_email='lukasz.uszko@gmail.com',
     url='https://github.com/luk6xff/Packt-Publishing-Free-Learning',
     long_description=long_description,
     long_description_content_type='text/markdown',
     package_dir={'': 'src'},
     packages=find_packages('src'),
-    py_modules=['packtPublishingFreeEbook', 'api', 'claimer', 'configuration', 'downloader'],
+    py_modules=['packtPublishingFreeEbook', 'api', 'claimer', 'configuration', 'downloader', 'pyocclient'],
     install_requires=requirements,
     extras_require={'dev': dev_requirements},
     entry_points={
