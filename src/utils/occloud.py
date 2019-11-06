@@ -39,6 +39,7 @@ class OwncloudManager(object):
         self.folder_name = configuration.get("OWNCLOUD_DATA", 'oc_folder_name')
         self.username = configuration.get("OWNCLOUD_DATA", 'oc_username')
         self.password = configuration.get("OWNCLOUD_DATA", 'oc_password')
+        self.separate_folder = configuration.get("OWNCLOUD_DATA", 'oc_separate_folder')
 
     def __ensure_folder_name_value(self, folder_name):
         if folder_name is None or len(folder_name) == 0:
@@ -66,6 +67,12 @@ class OwncloudManager(object):
             if os.path.exists(path):
                 remote_file = os.path.join(self.folder_name, os.path.basename(path))
                 try:
+                    if self.separate_folder:
+                        self.__check_if_folder_exists_and_create_if_missing(
+                            self.__ensure_folder_name_value(os.path.splitext(remote_file)[0])
+                        )
+                        remote_file = os.path.join(os.path.splitext(remote_file)[0], os.path.basename(path))
+
                     if self.oc.put_file(remote_file, path):
                         logger.success('File {} succesfully sent to owncloud or nextcloud'.format(path))
                     else:
