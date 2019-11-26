@@ -37,7 +37,7 @@ AVAILABLE_DOWNLOAD_FORMATS = ('pdf', 'mobi', 'epub', 'video', 'code')
 @click.option('-sm', '--status_mail', is_flag=True, help='Send an email whether script execution was successful.')
 @click.option('-f', '--folder', is_flag=True, default=False, help='Download ebooks into separate directories.')
 @click.option('-oc', '--oc', is_flag=True, default=False, help='Grab Free Learning ebookt and Upload and upload to ownCloud or nextcloud')
-@click.option('-oca', '--ocall', is_flag=True, default=False, help='Grab Free Learning ebookt and Upload and upload to ownCloud or nextcloud')
+@click.option('-oca', '--ocall', is_flag=True, default=False, help='Download all ebooks and upload them to owncloud or nextcloud')
 @click.option(
     '--noauth_local_webserver',
     is_flag=True,
@@ -89,7 +89,7 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, oc, ocall, mail, status_mail, fol
             else:  # sgd or mail or oc
                 download_products(api_client, download_directory, formats, [product_data], into_folder=False)
 
-        # Send downloaded book(s) by mail or to Google Drive.
+        # Send downloaded book(s) by mail, owncloud, nextcloud or to Google Drive.
         if sgd or mail or oc or ocall:
             if ocall:
                 formats = ['.pdf', '.mobi', '.epub', '.zip']
