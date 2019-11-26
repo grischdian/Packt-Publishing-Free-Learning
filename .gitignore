@@ -108,3 +108,4 @@ configFile.cfg
 
 # PyCharm settings
 .idea/
+/requirements.txt
