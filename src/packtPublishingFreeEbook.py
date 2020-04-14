@@ -38,13 +38,14 @@ AVAILABLE_DOWNLOAD_FORMATS = ('pdf', 'mobi', 'epub', 'video', 'code')
 @click.option('-f', '--folder', is_flag=True, default=False, help='Download ebooks into separate directories.')
 @click.option('-oc', '--oc', is_flag=True, default=False, help='Grab Free Learning ebookt and Upload and upload to ownCloud or nextcloud')
 @click.option('-oca', '--ocall', is_flag=True, default=False, help='Download all ebooks and upload them to owncloud or nextcloud')
+@click.option('-cli', '--cli', is_flag=True, default=False, help='Starts an interactive Client to Download ebooks')
 @click.option(
     '--noauth_local_webserver',
     is_flag=True,
     default=False,
     help='See Google Drive API Setup section in README.'
 )
-def packt_cli(cfgpath, grab, grabd, dall, sgd, oc, ocall, mail, status_mail, folder, noauth_local_webserver):
+def packt_cli(cfgpath, grab, grabd, dall, sgd, oc, ocall, mail, status_mail, folder, cli, noauth_local_webserver):
     config_file_path = cfgpath
     into_folder = folder
 
@@ -71,10 +72,23 @@ def packt_cli(cfgpath, grab, grabd, dall, sgd, oc, ocall, mail, status_mail, fol
                 )
 
         # Download book(s) into proper location.
-        if grabd or dall or sgd or mail or oc or ocall:
+        if grabd or dall or sgd or mail or oc or ocall or cli:
             download_directory, formats = cfg.config_download_data
-            download_directory = download_directory if (dall or grabd) else os.getcwd()  # cwd for temporary downloads
+            download_directory = download_directory if (dall or grabd or cli) else os.getcwd()  # cwd for temporary downloads
             formats = formats or AVAILABLE_DOWNLOAD_FORMATS
+
+            if cli:
+                from cli import Prompt
+                all_books = get_all_books_data(api_client)
+                cli = Prompt("tab",
+                             None,
+                             None,
+                             all_books,
+                             api_client,
+                             download_directory,
+                             formats,
+                             into_folder=into_folder)
+                cli.cmdloop()
 
             if dall or ocall:
                 download_products(
